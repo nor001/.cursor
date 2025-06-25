@@ -1,0 +1,328 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# LEGACY CODE REFACTORING STANDARDS
+
+## 🚨 CRITICAL: Safe Legacy Refactoring
+
+### **Before Making ANY Changes**
+1. **Document current behavior** completely
+2. **Create comprehensive tests** for all scenarios
+3. **Identify all special cases** and edge conditions
+4. **Preserve backward compatibility** at all costs
+
+### **Legacy Code Analysis Protocol**
+```autohotkey
+; STANDARD PATTERN for legacy code analysis
+function analyzeLegacyCode(functionName: string): LegacyAnalysis {
+  ; 1. Document current behavior
+  currentBehavior := documentCurrentBehavior(functionName)
+  
+  ; 2. Identify special cases
+  specialCases := identifySpecialCases(functionName)
+  
+  ; 3. Map dependencies
+  dependencies := mapDependencies(functionName)
+  
+  ; 4. Assess risk level
+  riskLevel := assessRiskLevel(functionName)
+  
+  return {
+    behavior: currentBehavior,
+    specialCases: specialCases,
+    dependencies: dependencies,
+    riskLevel: riskLevel
+  }
+}
+```
+
+### **Special Case Detection**
+```autohotkey
+; ALWAYS detect these special cases before refactoring:
+; 1. SAP-specific business logic
+; 2. Corporate environment constraints
+; 3. Legacy variable naming conventions
+; 4. Performance-critical code paths
+; 5. External system dependencies
+; 6. User-specific workflows
+
+; STANDARD PATTERN for special case detection
+function detectSpecialCases(code: string): SpecialCase[] {
+  specialCases := []
+  
+  ; Detect SAP patterns
+  if (InStr(code, "zcmt_") || InStr(code, "sap")) {
+    specialCases.push({
+      type: "sap_specific",
+      description: "SAP-specific business logic",
+      preservationRequired: true
+    })
+  }
+  
+  ; Detect corporate constraints
+  if (InStr(code, "vpn") || InStr(code, "proxy")) {
+    specialCases.push({
+      type: "corporate_constraint",
+      description: "Corporate environment requirements",
+      preservationRequired: true
+    })
+  }
+  
+  ; Detect legacy patterns
+  if (InStr(code, "lcl_") || InStr(code, "i_") || InStr(code, "l_")) {
+    specialCases.push({
+      type: "legacy_pattern",
+      description: "Legacy variable naming conventions",
+      preservationRequired: true
+    })
+  }
+  
+  return specialCases
+}
+```
+
+### **Incremental Refactoring Strategy**
+```autohotkey
+; NEVER do big-bang refactoring
+; ALWAYS use incremental approach
+
+; STEP 1: Create wrapper function
+function legacyFunctionWrapper(originalParams: any): any {
+  ; Preserve original function signature
+  return originalLegacyFunction(originalParams)
+}
+
+; STEP 2: Implement improved function
+function improvedFunction(originalParams: any): any {
+  ; Implement improvements while preserving logic
+  return enhancedImplementation(originalParams)
+}
+
+; STEP 3: Add validation
+function validateRefactoring(originalResult: any, newResult: any): boolean {
+  ; Ensure both functions produce identical results
+  return originalResult == newResult
+}
+
+; STEP 4: Gradual migration
+function migrateCallers(oldFunction: string, newFunction: string) {
+  ; Gradually replace calls to old function with new function
+  ; Test each migration step thoroughly
+}
+```
+
+### **Testing Standards for Legacy Code**
+```autohotkey
+; ALWAYS create comprehensive tests before refactoring
+; Test normal operation, edge cases, and special scenarios
+
+; STANDARD PATTERN for legacy testing
+function createLegacyTests(functionName: string): TestSuite {
+  tests := []
+  
+  ; Test normal operation
+  tests.push({
+    name: "Normal operation test",
+    input: "normal_input",
+    expectedOutput: "expected_result",
+    description: "Test normal operation of legacy function"
+  })
+  
+  ; Test edge cases
+  tests.push({
+    name: "Edge case test",
+    input: "edge_case_input",
+    expectedOutput: "edge_case_result",
+    description: "Test edge case handling"
+  })
+  
+  ; Test special cases
+  tests.push({
+    name: "Special case test",
+    input: "special_case_input",
+    expectedOutput: "special_case_result",
+    description: "Test special case handling"
+  })
+  
+  ; Test error conditions
+  tests.push({
+    name: "Error condition test",
+    input: "invalid_input",
+    expectedOutput: "error_result",
+    description: "Test error handling"
+  })
+  
+  return tests
+}
+```
+
+### **SAP-Specific Refactoring Rules**
+```autohotkey
+; SAP Legacy Code - EXTRA CARE REQUIRED
+; ALWAYS preserve SAP-specific business logic
+; NEVER modify SAP connection patterns without testing
+; ALWAYS maintain SAP environment compatibility
+
+; STANDARD PATTERN for SAP refactoring
+class SAPRefactoringHelper {
+  ; ALWAYS validate SAP-specific logic
+  validateSAPLogic(originalFunction: string, newFunction: string): boolean {
+    ; Test with SAP-specific inputs
+    sapInputs := this.getSAPTestInputs()
+    
+    for (input in sapInputs) {
+      originalResult := originalFunction(input)
+      newResult := newFunction(input)
+      
+      if (originalResult != newResult) {
+        return false
+      }
+    }
+    
+    return true
+  }
+  
+  ; ALWAYS test SAP environment compatibility
+  testSAPEnvironmentCompatibility(newFunction: string): boolean {
+    ; Test with different SAP environments (dev, qas, prd)
+    environments := ["dev", "qas", "prd"]
+    
+    for (env in environments) {
+      if (!this.testInEnvironment(newFunction, env)) {
+        return false
+      }
+    }
+    
+    return true
+  }
+}
+```
+
+### **Performance Preservation**
+```autohotkey
+; ALWAYS preserve performance characteristics
+; Measure before and after refactoring
+; Ensure no performance regression
+
+; STANDARD PATTERN for performance testing
+function measurePerformance(functionName: string, iterations: number): PerformanceMetrics {
+  startTime := A_TickCount
+  
+  for (i := 1; i <= iterations; i++) {
+    result := functionName("test_input")
+  }
+  
+  endTime := A_TickCount
+  executionTime := endTime - startTime
+  
+  return {
+    functionName: functionName,
+    iterations: iterations,
+    executionTime: executionTime,
+    averageTime: executionTime / iterations
+  }
+}
+
+; ALWAYS compare performance before and after
+function validatePerformance(originalMetrics: PerformanceMetrics, newMetrics: PerformanceMetrics): boolean {
+  ; Allow small performance variation (within 10%)
+  maxAllowedIncrease := originalMetrics.averageTime * 1.1
+  
+  return newMetrics.averageTime <= maxAllowedIncrease
+}
+```
+
+### **Documentation Standards**
+```autohotkey
+; ALWAYS document refactoring decisions
+; Document special cases and edge conditions
+; Maintain clear migration path
+
+; STANDARD PATTERN for refactoring documentation
+/**
+ * Legacy Function Refactoring Documentation
+ * 
+ * Original Function: legacyFunction()
+ * New Function: improvedFunction()
+ * 
+ * Special Cases Preserved:
+ * - SAP-specific business logic
+ * - Corporate environment constraints
+ * - Legacy variable naming conventions
+ * 
+ * Migration Path:
+ * 1. Original function remains available
+ * 2. New function provides improvements
+ * 3. Gradual migration of callers
+ * 4. Original function deprecated after full migration
+ * 
+ * Testing:
+ * - Comprehensive test suite created
+ * - All edge cases covered
+ * - Performance validated
+ * - SAP environment compatibility confirmed
+ */
+```
+
+### **Rollback Strategy**
+```autohotkey
+; ALWAYS have rollback strategy ready
+; Keep original function available during migration
+; Monitor for issues after deployment
+
+; STANDARD PATTERN for rollback
+class RollbackManager {
+  ; ALWAYS keep original function available
+  originalFunction := null
+  
+  ; ALWAYS monitor for issues
+  monitorForIssues(): boolean {
+    ; Monitor error rates, performance, user complaints
+    return this.checkForIssues()
+  }
+  
+  ; ALWAYS be ready to rollback
+  rollbackIfNeeded(): boolean {
+    if (this.monitorForIssues()) {
+      ; Switch back to original function
+      this.switchToOriginalFunction()
+      return true
+    }
+    
+    return false
+  }
+}
+```
+
+---
+
+## 🚨 CRITICAL: Never Remove Special Logic
+
+### **ALWAYS Preserve These Patterns**
+- **SAP-specific business logic** - Never simplify or remove
+- **Corporate environment constraints** - Maintain compatibility
+- **Legacy variable naming conventions** - Keep for compatibility
+- **Performance-critical code paths** - Preserve optimization
+- **External system dependencies** - Maintain integration
+- **User-specific workflows** - Keep user experience intact
+
+### **Safe Refactoring Checklist**
+- [ ] **Document current behavior** completely
+- [ ] **Identify all special cases** and edge conditions
+- [ ] **Create comprehensive tests** for all scenarios
+- [ ] **Preserve backward compatibility** at all costs
+- [ ] **Test performance** before and after changes
+- [ ] **Validate in all environments** (dev, qas, prd)
+- [ ] **Have rollback strategy** ready
+- [ ] **Monitor for issues** after deployment
+- [ ] **Update documentation** with changes
+- [ ] **Gradual migration** of callers
+
+### **Emergency Rollback Protocol**
+1. **IMMEDIATE**: Switch back to original function
+2. **ANALYSIS**: Identify what caused the issue
+3. **FIX**: Address the problem in the new function
+4. **TEST**: Thoroughly test the fix
+5. **REDEPLOY**: Gradually migrate back to new function

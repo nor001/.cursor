@@ -1,0 +1,212 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# CODING STANDARDS & BEST PRACTICES
+
+## 🏗️ Architecture Patterns
+
+### **Component Structure**
+```typescript
+// STANDARD: React component structure
+interface ComponentProps {
+  // Props interface at top
+}
+
+export function ComponentName({ prop1, prop2 }: ComponentProps) {
+  // Component logic
+  return (
+    // JSX
+  );
+}
+
+// Styles at bottom if needed
+```
+
+### **API Route Structure**
+```typescript
+// STANDARD: Next.js API route structure
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  try {
+    // 1. Validate request
+    // 2. Process data
+    // 3. Return response
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: 'Operation failed' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## 🧪 Testing Standards
+
+### **Utility Testing Pattern**
+```typescript
+// ALWAYS include test helper for utilities
+export async function testServiceConnection() {
+  const client = getServiceClient();
+  const { data, error } = await client.auth.getSession();
+  return { success: !error, error: error?.message };
+}
+```
+
+### **Component Testing**
+```typescript
+// Test user interactions, not implementation details
+test('user can upload CSV file', async () => {
+  const file = new File(['test,data'], 'test.csv', { type: 'text/csv' });
+  render(<CSVUpload />);
+  
+  const input = screen.getByLabelText(/upload/i);
+  await userEvent.upload(input, file);
+  
+  expect(screen.getByText(/uploaded successfully/i)).toBeInTheDocument();
+});
+```
+
+---
+
+## 🎯 Performance Standards
+
+### **Memory Management**
+```typescript
+// ALWAYS implement memory-conscious processing for large datasets
+export class MemoryEfficientProcessor {
+  private maxMemoryUsage = 50 * 1024 * 1024; // 50MB limit
+  
+  async processInChunks<T>(
+    data: T[], 
+    processor: (chunk: T[]) => Promise<void>,
+    chunkSize: number = 1000
+  ): Promise<void> {
+    for (let i = 0; i < data.length; i += chunkSize) {
+      const chunk = data.slice(i, i + chunkSize);
+      await processor(chunk);
+      
+      // Check memory usage
+      const memUsage = process.memoryUsage();
+      if (memUsage.heapUsed > this.maxMemoryUsage) {
+        chunkSize = Math.max(100, Math.floor(chunkSize * 0.8));
+      }
+    }
+  }
+}
+```
+
+### **Response Time Standards**
+- **API endpoints**: < 2 seconds
+- **Database queries**: < 100ms for 95th percentile
+- **File uploads**: < 5 seconds for files < 10MB
+- **Page loads**: < 3 seconds on mobile networks
+
+---
+
+## 🌐 Internationalization
+
+### **Locale Detection Pattern**
+```typescript
+// ALWAYS detect locale requirements
+function detectLocaleRequirements(): LocaleConfig {
+  const browserLocale = navigator.language || 'es-ES';
+  const corporateLocale = process.env.CORPORATE_LOCALE || 'es-ES';
+  
+  return {
+    dateFormat: corporateLocale.startsWith('en') ? 'MM/DD/YYYY' : 'DD/MM/YYYY',
+    currency: corporateLocale.startsWith('es') ? 'EUR' : 'USD',
+    decimalSeparator: corporateLocale.startsWith('en') ? '.' : ',',
+    thousandsSeparator: corporateLocale.startsWith('en') ? ',' : '.'
+  };
+}
+```
+
+---
+
+## 📱 Mobile & Responsive
+
+### **Touch Event Handling**
+```typescript
+// ALWAYS handle touch events properly
+function setupMobileOptimizations() {
+  if (isMobileDevice()) {
+    // Prevent double-tap zoom
+    document.addEventListener('touchstart', function(e) {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    });
+    
+    // Use touch events instead of click
+    document.querySelectorAll('.button').forEach(button => {
+      button.addEventListener('touchstart', handleTouchStart, { passive: true });
+    });
+  }
+}
+```
+
+---
+
+## 🚨 Emergency Patterns
+
+### **Graceful Degradation**
+```typescript
+// ALWAYS implement graceful degradation
+async function handleServiceFailure(service: string, fallback: () => any) {
+  try {
+    // Try primary service
+    const result = await callService(service);
+    return { success: true, data: result, source: 'primary' };
+  } catch (error) {
+    console.warn(`${service} failed, using fallback:`, error.message);
+    
+    try {
+      // Use fallback
+      const fallbackResult = await fallback();
+      return { success: true, data: fallbackResult, source: 'fallback' };
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError.message);
+      return { success: false, error: fallbackError.message };
+    }
+  }
+}
+```
+
+---
+
+## 📊 Monitoring & Logging
+
+### **Structured Logging**
+```typescript
+// ALWAYS use structured logging
+function logOperation(operation: string, context: any, result: any) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    operation,
+    context,
+    result,
+    environment: process.env.NODE_ENV
+  }));
+}
+```
+
+### **Performance Monitoring**
+```typescript
+// ALWAYS track performance metrics
+function trackPerformance(operation: string, startTime: number) {
+  const duration = Date.now() - startTime;
+  
+  // Log if operation takes too long
+  if (duration > 2000) {
+    console.warn(`Slow operation: ${operation} took ${duration}ms`);
+  }
+  
+  // Send to monitoring service
+  sendMetric('operation_duration', { operation, duration });
+}

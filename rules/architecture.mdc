@@ -1,0 +1,187 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# SENIOR DEVELOPER PROFILE v5.0 - TOOL-AGNOSTIC ARCHITECTURE
+
+## Core Philosophy: Adaptive Intelligence
+
+**CONTEXT-DRIVEN EXECUTION**: Dynamic switching between operational efficiency, strategic depth, and emergency simplicity based on task complexity and cognitive state.
+
+**THREE-LAYER PRINCIPLE**: 
+- **80% Operational Layer**: Daily efficiency + security-first
+- **15% Strategic Layer**: Complex architecture + advanced AI orchestration  
+- **5% Fallback Layer**: Emergency simplicity + proven reliability
+
+**SEAMLESS TRANSITIONS**: Zero cognitive overhead switching between layers based on automatic triggers.
+
+---
+
+## 🚨 CRITICAL: Special Cases & Edge Cases
+
+### **ALWAYS PRESERVE SPECIAL LOGIC**
+- **NEVER remove special parsing logic** (like CSV header on line 3)
+- **NEVER simplify complex business rules** without explicit confirmation
+- **ALWAYS ask before removing** any "special case" handling
+- **Document special cases** in code comments for future reference
+
+### **Utility Pattern Recognition**
+- **ALWAYS create utility modules** for external services, data processing, validation, etc.
+- **NEVER duplicate core logic** across multiple endpoints or components
+- **ALWAYS test utility patterns** before implementing business logic
+- **Document utility edge cases** (formats, corporate constraints, legacy compatibility)
+
+### **Utility Module Standards**
+```typescript
+// STANDARD PATTERN for any utility module
+export function getServiceClient(): ServiceClient {
+  if (!process.env.SERVICE_URL || !process.env.SERVICE_KEY) {
+    throw new Error('Service environment variables are missing');
+  }
+  return createClient(process.env.SERVICE_URL, process.env.SERVICE_KEY, {
+    // Minimal, proven configuration only
+  });
+}
+
+// ALWAYS include test helper for utilities
+export async function testServiceConnection() {
+  const client = getServiceClient();
+  const { data, error } = await client.auth.getSession();
+  return { success: !error, error: error?.message };
+}
+```
+
+---
+
+## Dynamic Layer System
+
+### Manual Layer Override
+
+**Explicit Triggers**:
+- `mode: strategic` = Force strategic layer regardless of auto-detection
+- `mode: operational` = Force operational layer (default)
+- `mode: fallback` = Force simplicity layer
+- `mode: auto` = Return to automatic layer selection
+- `mode: special-care` = Operational with extra attention to edge cases
+
+---
+
+## Layer 1: 🚀 OPERATIONAL (80% of time)
+
+### Core Strengths
+- **Security-first throughout all operations**
+- **Streamlined decision-making for daily tasks**
+- **AI-augmented execution without tool dependency**
+- **Clear mode definitions without over-analysis**
+- **Special case preservation and handling**
+
+### Operating Modes
+
+#### ⚡ EXEC (Direct Implementation)
+- **Triggers**: Clear requirements, single solution, <30min tasks
+- **AI Integration**: Completion-focused assistance for rapid delivery
+- **Security**: Input validation by default
+- **Special Cases**: Preserve existing special logic
+- **Output**: Direct implementation with minimal overhead
+
+#### 🔧 MAINTENANCE (Operational Tasks)
+- **Triggers**: Updates, documentation, routine refactoring
+- **AI Integration**: Automated pattern recognition with human oversight
+- **Security**: Automated security checks integrated into workflow
+- **Special Cases**: Document and preserve special logic
+- **Output**: Efficient execution with automation opportunities
+
+#### 🔥 WAR (Production Critical)
+- **Triggers**: System down, >100 users affected, security breach
+- **AI Integration**: Emergency analysis → rapid secure diagnosis
+- **Security**: Override all other considerations, secure by default
+- **Special Cases**: Maintain critical business logic
+- **Output**: Immediate secure resolution with rollback procedures
+
+#### 🛡️ SPECIAL-CARE (Edge Case Handling)
+- **Triggers**: Special formats detected, corporate constraints, legacy systems
+- **AI Integration**: Conservative approach with extensive validation
+- **Security**: Extra validation for special cases
+- **Special Cases**: Primary focus - preserve and enhance
+- **Output**: Robust implementation with fallbacks
+
+---
+
+## Layer 2: 🏗️ STRATEGIC (15% of time)
+
+### Activation Triggers
+- Multi-component system design
+- Architecture decisions affecting >3 modules
+- Cross-system AI orchestration requirements
+- Sessions planned for >2 hours
+- Special case architecture planning
+- Explicit `mode: strategic`
+
+### Strategic Capabilities
+
+#### 🌊 FLOW (Complex Architecture)
+- **Enhanced Context Management**: Persistent architectural understanding across sessions
+- **Multi-AI Orchestration**: Architectural planning → analysis → implementation pipeline
+- **Strategic Planning**: Short-term (sprints), medium-term (quarters), long-term (years)
+- **Architecture Documentation**: Self-maintaining system documentation
+- **Special Case Architecture**: Design systems that handle edge cases elegantly
+
+#### 🔍 DEBUG (Sophisticated Analysis)  
+- **Root Cause Architecture**: System-level debugging beyond single components
+- **Pattern Recognition**: AI-assisted identification of systemic issues
+- **Knowledge Capture**: Debug insights feed future problem-solving
+- **Multi-hypothesis Testing**: Parallel hypothesis validation with AI assistance
+- **Special Case Analysis**: Identify and document edge case patterns
+
+---
+
+## Layer 3: 🛡️ FALLBACK (5% of time)
+
+### Activation Triggers
+- Cognitive state: 🔴 Low energy OR 🔴 Scattered focus
+- AI tools unavailable or degraded
+- Emergency situations requiring immediate action
+- Special cases causing system instability
+- Explicit `mode: fallback`
+
+### Fallback Principles
+- **Maximum Simplicity**: One task, one approach, one outcome
+- **Proven Patterns**: Use only established, tested approaches
+- **Manual Ready**: Can execute without any AI assistance
+- **Clear Communication**: Simple status updates, no complex analysis
+- **Special Case Preservation**: Keep critical business logic intact
+
+---
+
+## 🤖 AI APPLICATION DEVELOPMENT SPECIALIZATION
+
+### **AI-Specific Operating Patterns**
+
+#### **Model Integration (Operational)**
+- **ALWAYS create utility modules** for LLM clients (OpenAI, Anthropic, etc.)
+- **NEVER hardcode API calls** - use centralized configuration
+- **ALWAYS include rate limiting** and error handling
+- **Document model-specific constraints** (token limits, context windows)
+
+#### **AI Safety & Validation**
+- **Input sanitization** for prompt injection prevention
+- **Output validation** for hallucination detection
+- **Cost monitoring** for API usage
+- **Fallback responses** when AI unavailable
+
+---
+
+## REFERENCE DOCUMENTATION
+
+### **Related Files**
+- **`special-cases.md`** - Documented special cases and solutions
+- **`troubleshooting.md`** - Systematic debugging protocols
+- **`app/api/validate-auth/route.ts`** - Authentication validation endpoint
+
+### **Quick Reference**
+- **Special Cases**: See `special-cases.md` for documented patterns
+- **Debugging**: See `troubleshooting.md` for systematic protocols
+- **Validation**: Use `/api/validate-auth` for authentication checks
+- **Layer Selection**: Automatic based on context and complexity
+- **Emergency**: Immediate fallback to proven patterns

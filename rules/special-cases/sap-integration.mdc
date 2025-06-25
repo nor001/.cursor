@@ -3,3 +3,450 @@ description:
 globs:
 alwaysApply: false
 ---
+# SAP INTEGRATION SPECIAL CASES
+
+## 🚨 CRITICAL: Special Cases & Edge Cases
+
+### **ALWAYS PRESERVE SPECIAL LOGIC**
+- **NEVER remove special parsing logic** (like CSV header on line 3)
+- **NEVER simplify complex business rules** without explicit confirmation
+- **ALWAYS ask before removing** any "special case" handling
+- **Document special cases** in code comments for future reference
+
+---
+
+## 📊 DATA PROCESSING SPECIAL CASES
+
+### **Case: CSV Header on Line 3**
+
+#### **Business Rule**
+- SAP corporate format requires headers on line 3
+- First 2 lines are title and empty line
+- **NEVER simplify this logic**
+
+#### **Preservation Pattern**
+```typescript
+// ALWAYS preserve this special parsing logic
+export function processSpecialCSV(csvText: string): ProcessedData {
+  const lines = csvText.split('\n');
+  
+  // SPECIAL CASE: Headers on line 3 (index 2)
+  if (lines.length < 3) {
+    throw new Error('CSV must have at least 3 lines (title, empty, headers)');
+  }
+  
+  const headers = lines[2].split(',');
+  const dataLines = lines.slice(3);
+  
+  return {
+    headers,
+    data: dataLines.map(line => parseCSVLine(line, headers)),
+    rowCount: dataLines.length
+  };
+}
+```
+
+---
+
+## 🏢 CORPORATE ENVIRONMENT SPECIAL CASES
+
+### **Case: SSL/Proxy Restrictions**
+
+#### **Detection Pattern**
+```typescript
+// ALWAYS check for corporate constraints
+function detectCorporateConstraints(): CorporateConstraints {
+  return {
+    hasProxy: process.env.HTTP_PROXY || process.env.HTTPS_PROXY,
+    hasSSLIssues: process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0',
+    hasFirewall: process.env.CORPORATE_FIREWALL === 'true',
+    hasLegacySupport: process.env.LEGACY_COMPATIBILITY === 'true'
+  };
+}
+```
+
+#### **Handling Pattern**
+```typescript
+// ALWAYS handle corporate constraints gracefully
+function createClientWithCorporateSupport() {
+  const constraints = detectCorporateConstraints();
+  
+  const config = {
+    auth: { persistSession: true },
+    global: {
+      headers: {
+        'User-Agent': 'SAP-Gestion-App/1.0'
+      }
+    }
+  };
+  
+  if (constraints.hasSSLIssues) {
+    config.global.headers['X-Corporate-SSL'] = 'bypass';
+  }
+  
+  return createClient(url, key, config);
+}
+```
+
+---
+
+## 🔐 AUTHENTICATION SPECIAL CASES
+
+### **Case: "Supabase no está configurado" Error**
+
+#### **Symptoms**
+- Error message: "Supabase no está configurado para el frontend"
+- Login buttons don't work
+- Environment variables appear correct
+- Problem persists across deployments
+
+#### **Root Cause Analysis**
+```typescript
+// PROBLEM: Inconsistent client usage
+// ❌ WRONG: Mixing supabase.ts (service) and supabase-client.ts (public)
+import { supabase } from '@/lib/supabase';           // Service client
+import { supabaseClient } from '@/lib/supabase-client'; // Public client
+
+// ✅ CORRECT: Unified client usage
+import { supabaseClient, isSupabaseAvailable } from '@/lib/supabase-client';
+```
+
+#### **Solution Pattern**
+```typescript
+// STANDARD PATTERN for Supabase client usage
+export function ComponentWithSupabase() {
+  const [error, setError] = useState<string | null>(null);
+  
+  const handleAction = async () => {
+    // 1. Always check availability first
+    if (!isSupabaseAvailable()) {
+      setError('Error de configuración. Contacta al administrador.');
+      return;
+    }
+    
+    try {
+      // 2. Use supabaseClient consistently
+      const { data, error } = await supabaseClient!.auth.getUser();
+      
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      
+      // 3. Handle success
+      return data;
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error desconocido');
+    }
+  };
+}
+```
+
+#### **Validation Checklist**
+- [ ] All components use `supabaseClient` from `supabase-client.ts`
+- [ ] All components call `isSupabaseAvailable()` before using client
+- [ ] Environment variables: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [ ] Test login flow end-to-end
+- [ ] Verify OAuth redirect works
+
+#### **Prevention Measures**
+```typescript
+// UTILITY: Centralized Supabase client
+// File: lib/supabase-client.ts
+export const supabaseClient = isSupabaseConfigured 
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { persistSession: true, autoRefreshToken: true }
+    })
+  : null;
+
+export const isSupabaseAvailable = () => !!supabaseClient;
+
+// ALWAYS use this pattern in components
+```
+
+---
+
+## 🔧 DEBUGGING SPECIAL CASES
+
+### **Case: Persistent Configuration Issues**
+
+#### **Diagnostic Endpoint Pattern**
+```typescript
+// STANDARD: Always create diagnostic endpoints for external services
+export async function GET() {
+  const envVars = {
+    NEXT_PUBLIC_SUPABASE_URL: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_URL: !!process.env.SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+  };
+
+  const isFrontendConfigured = envVars.NEXT_PUBLIC_SUPABASE_URL && envVars.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const isBackendConfigured = envVars.SUPABASE_URL && envVars.SUPABASE_SERVICE_ROLE_KEY;
+
+  return NextResponse.json({
+    success: true,
+    frontend: isFrontendConfigured,
+    backend: isBackendConfigured,
+    variables: envVars,
+    recommendations: [
+      isFrontendConfigured ? '✅ Frontend configurado' : '❌ Falta NEXT_PUBLIC_* variables',
+      isBackendConfigured ? '✅ Backend configurado' : '❌ Falta SUPABASE_* variables',
+    ]
+  });
+}
+```
+
+#### **Validation Protocol**
+1. **Create diagnostic endpoint** before implementing solution
+2. **Test with endpoint** to verify problem
+3. **Implement solution** with consistent patterns
+4. **Validate with endpoint** to confirm fix
+5. **Only then clean up** diagnostic tools
+
+---
+
+## 🌐 INTERNATIONALIZATION SPECIAL CASES
+
+### **Case: Date/Currency Format Variations**
+
+#### **Business Rule**
+- Different regions require different formats
+- SAP environments often have specific locale requirements
+- **CRITICAL for corporate compliance**
+
+#### **Detection Pattern**
+```typescript
+// ALWAYS detect locale requirements
+function detectLocaleRequirements(): LocaleConfig {
+  const browserLocale = navigator.language || 'es-ES';
+  const corporateLocale = process.env.CORPORATE_LOCALE || 'es-ES';
+  
+  return {
+    dateFormat: corporateLocale.startsWith('en') ? 'MM/DD/YYYY' : 'DD/MM/YYYY',
+    currency: corporateLocale.startsWith('es') ? 'EUR' : 'USD',
+    decimalSeparator: corporateLocale.startsWith('en') ? '.' : ',',
+    thousandsSeparator: corporateLocale.startsWith('en') ? ',' : '.'
+  };
+}
+
+// ALWAYS format data according to locale
+function formatCurrencyForLocale(amount: number, locale: LocaleConfig): string {
+  return new Intl.NumberFormat(locale.currency === 'EUR' ? 'es-ES' : 'en-US', {
+    style: 'currency',
+    currency: locale.currency
+  }).format(amount);
+}
+```
+
+---
+
+## 🚀 PERFORMANCE & SCALABILITY SPECIAL CASES
+
+### **Case: Large Dataset Processing**
+
+#### **Business Rule**
+- Handle CSV files >100MB without browser crash
+- Implement progressive processing for large datasets
+- **CRITICAL for enterprise data volumes**
+
+#### **Detection Pattern**
+```typescript
+// ALWAYS check file size before processing
+function detectLargeDataset(file: File): DatasetInfo {
+  const sizeMB = file.size / (1024 * 1024);
+  
+  return {
+    isLarge: sizeMB > 50,
+    isVeryLarge: sizeMB > 100,
+    requiresStreaming: sizeMB > 200,
+    processingStrategy: sizeMB > 100 ? 'stream' : 'batch',
+    estimatedTime: Math.ceil(sizeMB / 10) // ~10MB per second
+  };
+}
+
+// ALWAYS use progressive processing for large files
+async function processLargeCSV(file: File): Promise<ProcessingResult> {
+  const info = detectLargeDataset(file);
+  
+  if (info.requiresStreaming) {
+    return await streamProcessCSV(file);
+  } else if (info.isLarge) {
+    return await batchProcessCSV(file, 1000); // 1000 rows per batch
+  } else {
+    return await standardProcessCSV(file);
+  }
+}
+```
+
+#### **Memory Management Pattern**
+```typescript
+// ALWAYS implement memory-conscious processing
+export class MemoryEfficientProcessor {
+  private maxMemoryUsage = 50 * 1024 * 1024; // 50MB limit
+  
+  async processInChunks<T>(
+    data: T[], 
+    processor: (chunk: T[]) => Promise<void>,
+    chunkSize: number = 1000
+  ): Promise<void> {
+    for (let i = 0; i < data.length; i += chunkSize) {
+      const chunk = data.slice(i, i + chunkSize);
+      
+      // Process chunk
+      await processor(chunk);
+      
+      // Force garbage collection hint
+      if (global.gc) global.gc();
+      
+      // Check memory usage
+      const memUsage = process.memoryUsage();
+      if (memUsage.heapUsed > this.maxMemoryUsage) {
+        // Reduce chunk size dynamically
+        chunkSize = Math.max(100, Math.floor(chunkSize * 0.8));
+      }
+    }
+  }
+}
+```
+
+---
+
+## 🔒 SECURITY & COMPLIANCE SPECIAL CASES
+
+### **Case: GDPR Data Handling**
+
+#### **Business Rule**
+- All personal data must be trackable and deletable
+- Data processing consent must be explicit
+- **CRITICAL for European compliance**
+
+#### **Detection Pattern**
+```typescript
+// ALWAYS detect personal data in CSV uploads
+function detectPersonalData(csvData: any[]): GDPRAnalysis {
+  const personalDataPatterns = {
+    email: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/,
+    phone: /(\+\d{1,3}[-.\s]?)?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/,
+    dni: /\b\d{8}[A-Z]\b/,
+    iban: /\b[A-Z]{2}\d{2}[A-Z0-9]{4}\d{7}([A-Z0-9]?){0,16}\b/
+  };
+  
+  const detectedTypes = [];
+  const affectedRows = [];
+  
+  csvData.forEach((row, index) => {
+    Object.values(row).forEach(value => {
+      if (typeof value === 'string') {
+        Object.entries(personalDataPatterns).forEach(([type, pattern]) => {
+          if (pattern.test(value)) {
+            detectedTypes.push(type);
+            affectedRows.push(index);
+          }
+        });
+      }
+    });
+  });
+  
+  return {
+    hasPersonalData: detectedTypes.length > 0,
+    dataTypes: [...new Set(detectedTypes)],
+    affectedRows: [...new Set(affectedRows)],
+    requiresConsent: detectedTypes.length > 0,
+    retentionPolicy: '7-years' // Default SAP retention
+  };
+}
+```
+
+#### **Consent Management Pattern**
+```typescript
+// ALWAYS implement explicit consent for personal data
+export class GDPRConsentManager {
+  async requestDataProcessingConsent(analysis: GDPRAnalysis): Promise<ConsentResult> {
+    if (!analysis.hasPersonalData) {
+      return { granted: true, type: 'not-required' };
+    }
+    
+    const consentRequest = {
+      dataTypes: analysis.dataTypes,
+      purpose: 'SAP data processing and analysis',
+      retention: analysis.retentionPolicy,
+      rights: ['access', 'rectification', 'erasure', 'portability']
+    };
+    
+    // Present consent UI to user
+    const userConsent = await this.presentConsentUI(consentRequest);
+    
+    if (userConsent.granted) {
+      // Log consent for audit trail
+      await this.logConsent({
+        userId: userConsent.userId,
+        timestamp: new Date(),
+        dataTypes: analysis.dataTypes,
+        consentVersion: '1.0'
+      });
+    }
+    
+    return userConsent;
+  }
+}
+```
+
+---
+
+## 🚨 CRITICAL PRESERVATION RULES
+
+### **NEVER Remove Without Validation**
+1. **Special parsing logic** (CSV headers on line 3)
+2. **Corporate environment handling** (SSL, proxy, firewall)
+3. **Business-specific validations** (SAP formats, corporate rules)
+4. **Diagnostic endpoints** for external services
+5. **Legacy compatibility** patterns
+
+### **ALWAYS Validate Before Cleaning**
+1. **Create diagnostic endpoint** first
+2. **Test current state** with endpoint
+3. **Implement solution** systematically
+4. **Verify with endpoint** that solution works
+5. **Document the case** for future reference
+6. **Only then remove** diagnostic tools
+
+### **Preservation Checklist**
+- [ ] Case documented in `special-cases.md`
+- [ ] Solution pattern established
+- [ ] Validation protocol created
+- [ ] Prevention measures implemented
+- [ ] Team awareness raised
+
+---
+
+## 🎯 QUICK REFERENCE GUIDE
+
+### **🚨 Emergency Response Protocol**
+```
+1. IDENTIFY case type (use categories above)
+2. CHECK existing patterns in this document
+3. PRESERVE any special business logic
+4. IMPLEMENT solution with validation
+5. DOCUMENT new case if not covered
+6. MONITOR error rates post-implementation
+```
+
+### **💡 Case Priority Matrix**
+| Impact | Frequency | Priority | Action |
+|--------|-----------|----------|--------|
+| Critical | High | 🚨 P0 | Immediate fix (same day) |
+| Critical | Low | 🔥 P1 | Fix within 24h |
+| High | High | ⚡ P2 | Fix within 3 days |
+| High | Low | 📋 P3 | Fix within 1 week |
+| Medium | Any | 🔄 P4 | Plan for next sprint |
+
+### **🔧 Standard Validation Checklist**
+- [ ] Case documented with template
+- [ ] Root cause analysis completed
+- [ ] Solution pattern established
+- [ ] Prevention measures implemented
+- [ ] Diagnostic endpoint created (if applicable)
+- [ ] Error monitoring configured
+- [ ] Team training material updated
+- [ ] Rollback procedure defined

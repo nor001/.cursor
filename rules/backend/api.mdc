@@ -3,3 +3,555 @@ description:
 globs:
 alwaysApply: false
 ---
+# BACKEND API STANDARDS
+
+## 🏗️ API Route Architecture
+
+### **Standard API Route Pattern**
+```typescript
+// File: app/api/[endpoint]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  try {
+    // 1. Validate request
+    const validation = validateRequest(request);
+    if (!validation.isValid) {
+      return NextResponse.json(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
+    }
+    
+    // 2. Process data
+    const result = await processData(validation.data);
+    
+    // 3. Return response
+    return NextResponse.json({ success: true, data: result });
+  } catch (error) {
+    console.error('API Error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // 1. Parse and validate body
+    const body = await request.json();
+    const validation = validateBody(body);
+    if (!validation.isValid) {
+      return NextResponse.json(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
+    }
+    
+    // 2. Process request
+    const result = await processRequest(validation.data);
+    
+    // 3. Return response
+    return NextResponse.json({ success: true, data: result });
+  } catch (error) {
+    console.error('API Error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## 🔒 Security Patterns
+
+### **Input Validation**
+```typescript
+// ALWAYS validate all inputs
+function validateRequest(request: NextRequest): ValidationResult {
+  const url = new URL(request.url);
+  const params = Object.fromEntries(url.searchParams);
+  
+  // Validate query parameters
+  if (params.id && !isValidId(params.id)) {
+    return { isValid: false, error: 'Invalid ID format' };
+  }
+  
+  // Validate headers
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader || !isValidAuthHeader(authHeader)) {
+    return { isValid: false, error: 'Invalid authorization header' };
+  }
+  
+  return { isValid: true, data: { params, authHeader } };
+}
+
+function validateBody(body: any): ValidationResult {
+  // Validate required fields
+  if (!body.requiredField) {
+    return { isValid: false, error: 'Required field missing' };
+  }
+  
+  // Validate data types
+  if (typeof body.requiredField !== 'string') {
+    return { isValid: false, error: 'Invalid field type' };
+  }
+  
+  // Validate data length
+  if (body.requiredField.length > 1000) {
+    return { isValid: false, error: 'Field too long' };
+  }
+  
+  return { isValid: true, data: body };
+}
+```
+
+### **Authentication & Authorization**
+```typescript
+// ALWAYS implement proper auth
+async function authenticateRequest(request: NextRequest): Promise<AuthResult> {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader) {
+    return { isAuthenticated: false, error: 'No authorization header' };
+  }
+  
+  try {
+    const token = authHeader.replace('Bearer ', '');
+    const user = await verifyToken(token);
+    
+    if (!user) {
+      return { isAuthenticated: false, error: 'Invalid token' };
+    }
+    
+    return { isAuthenticated: true, user };
+  } catch (error) {
+    return { isAuthenticated: false, error: 'Authentication failed' };
+  }
+}
+
+async function authorizeAction(user: User, action: string): Promise<AuthResult> {
+  const permissions = await getUserPermissions(user.id);
+  
+  if (!permissions.includes(action)) {
+    return { isAuthorized: false, error: 'Insufficient permissions' };
+  }
+  
+  return { isAuthorized: true };
+}
+```
+
+---
+
+## 📊 Data Processing
+
+### **CSV Processing Pattern**
+```typescript
+// ALWAYS handle special CSV formats
+export async function processCSV(csvText: string): Promise<ProcessedData> {
+  const lines = csvText.split('\n');
+  
+  // SPECIAL CASE: Headers on line 3 (index 2)
+  if (lines.length < 3) {
+    throw new Error('CSV must have at least 3 lines (title, empty, headers)');
+  }
+  
+  const headers = lines[2].split(',');
+  const dataLines = lines.slice(3);
+  
+  return {
+    headers,
+    data: dataLines.map(line => parseCSVLine(line, headers)),
+    rowCount: dataLines.length
+  };
+}
+
+function parseCSVLine(line: string, headers: string[]): Record<string, any> {
+  const values = line.split(',');
+  const result: Record<string, any> = {};
+  
+  headers.forEach((header, index) => {
+    result[header.trim()] = values[index]?.trim() || '';
+  });
+  
+  return result;
+}
+```
+
+### **Large Dataset Handling**
+```typescript
+// ALWAYS handle large datasets efficiently
+export class MemoryEfficientProcessor {
+  private maxMemoryUsage = 50 * 1024 * 1024; // 50MB limit
+  
+  async processInChunks<T>(
+    data: T[], 
+    processor: (chunk: T[]) => Promise<void>,
+    chunkSize: number = 1000
+  ): Promise<void> {
+    for (let i = 0; i < data.length; i += chunkSize) {
+      const chunk = data.slice(i, i + chunkSize);
+      
+      // Process chunk
+      await processor(chunk);
+      
+      // Check memory usage
+      const memUsage = process.memoryUsage();
+      if (memUsage.heapUsed > this.maxMemoryUsage) {
+        // Reduce chunk size dynamically
+        chunkSize = Math.max(100, Math.floor(chunkSize * 0.8));
+      }
+    }
+  }
+}
+```
+
+---
+
+## 🔄 Error Handling
+
+### **Graceful Error Handling**
+```typescript
+// ALWAYS handle errors gracefully
+async function handleServiceFailure(service: string, fallback: () => any) {
+  try {
+    // Try primary service
+    const result = await callService(service);
+    return { success: true, data: result, source: 'primary' };
+  } catch (error) {
+    console.warn(`${service} failed, using fallback:`, error.message);
+    
+    try {
+      // Use fallback
+      const fallbackResult = await fallback();
+      return { success: true, data: fallbackResult, source: 'fallback' };
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError.message);
+      return { success: false, error: fallbackError.message };
+    }
+  }
+}
+```
+
+### **Retry Pattern**
+```typescript
+// PATTERN: Retry with exponential backoff
+async function retryWithBackoff<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      // Exponential backoff
+      const delay = baseDelay * Math.pow(2, attempt);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+}
+```
+
+---
+
+## 📊 Monitoring & Logging
+
+### **Structured Logging**
+```typescript
+// ALWAYS use structured logging
+function logAPIRequest(method: string, endpoint: string, duration: number, status: number) {
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    level: 'info',
+    method,
+    endpoint,
+    duration,
+    status,
+    environment: process.env.NODE_ENV
+  }));
+}
+
+function logAPIError(method: string, endpoint: string, error: Error, context?: any) {
+  console.error(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    level: 'error',
+    method,
+    endpoint,
+    error: error.message,
+    stack: error.stack,
+    context,
+    environment: process.env.NODE_ENV
+  }));
+}
+```
+
+### **Performance Monitoring**
+```typescript
+// ALWAYS track API performance
+async function withPerformanceTracking<T>(
+  operation: () => Promise<T>,
+  operationName: string
+): Promise<T> {
+  const startTime = Date.now();
+  
+  try {
+    const result = await operation();
+    const duration = Date.now() - startTime;
+    
+    // Log performance
+    logPerformance(operationName, duration, 'success');
+    
+    return result;
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    
+    // Log error with performance
+    logPerformance(operationName, duration, 'error');
+    throw error;
+  }
+}
+
+function logPerformance(operation: string, duration: number, status: 'success' | 'error') {
+  // Send to monitoring service
+  sendMetric('api_performance', {
+    operation,
+    duration,
+    status,
+    timestamp: Date.now()
+  });
+  
+  // Alert if too slow
+  if (duration > 2000) {
+    console.warn(`Slow API operation: ${operation} took ${duration}ms`);
+  }
+}
+```
+
+---
+
+## 🔍 Diagnostic Endpoints
+
+### **Health Check Pattern**
+```typescript
+// File: app/api/health/route.ts
+export async function GET() {
+  const healthChecks = [
+    { name: 'environment', check: checkEnvironment },
+    { name: 'database', check: checkDatabase },
+    { name: 'storage', check: checkStorage },
+    { name: 'authentication', check: checkAuthentication }
+  ];
+
+  const results = await Promise.allSettled(
+    healthChecks.map(async ({ name, check }) => {
+      const result = await check();
+      return { name, ...result };
+    })
+  );
+
+  const status = results.every(r => 
+    r.status === 'fulfilled' && r.value.success
+  ) ? 'healthy' : 'unhealthy';
+
+  return NextResponse.json({
+    status,
+    timestamp: new Date().toISOString(),
+    checks: results.map(r => 
+      r.status === 'fulfilled' ? r.value : { name: 'unknown', success: false, error: 'Check failed' }
+    )
+  });
+}
+```
+
+### **Diagnostic Endpoint Pattern**
+```typescript
+// STANDARD: Always create diagnostic endpoints for external services
+export async function GET() {
+  const diagnosticSteps = [
+    { step: 'environment', test: validateEnvironment },
+    { step: 'connection', test: testServiceConnection },
+    { step: 'authentication', test: testAuthentication },
+    { step: 'business_logic', test: testBusinessLogic }
+  ];
+
+  const results = [];
+  
+  for (const { step, test } of diagnosticSteps) {
+    try {
+      const result = await test();
+      results.push({ step, status: 'success', data: result });
+    } catch (error) {
+      results.push({ step, status: 'error', error: error.message });
+      // Stop on first critical error
+      if (step === 'environment' || step === 'connection') {
+        break;
+      }
+    }
+  }
+
+  const allPassed = results.every(r => r.status === 'success');
+  
+  return NextResponse.json({
+    success: allPassed,
+    timestamp: new Date().toISOString(),
+    results,
+    recommendations: generateRecommendations(results)
+  });
+}
+```
+
+---
+
+## 🚨 Rate Limiting
+
+### **Rate Limiting Implementation**
+```typescript
+// ALWAYS implement rate limiting
+export class RateLimiter {
+  private limits = new Map<string, RateLimit>();
+  
+  async checkLimit(userId: string): Promise<boolean> {
+    const userLimit = this.limits.get(userId) || {
+      count: 0,
+      resetTime: Date.now() + 3600000 // 1 hour
+    };
+    
+    if (Date.now() > userLimit.resetTime) {
+      userLimit.count = 0;
+      userLimit.resetTime = Date.now() + 3600000;
+    }
+    
+    const maxRequests = process.env.API_MAX_REQUESTS_PER_HOUR || 1000;
+    return userLimit.count < maxRequests;
+  }
+  
+  async incrementLimit(userId: string): Promise<void> {
+    const userLimit = this.limits.get(userId) || {
+      count: 0,
+      resetTime: Date.now() + 3600000
+    };
+    
+    userLimit.count++;
+    this.limits.set(userId, userLimit);
+  }
+}
+```
+
+---
+
+## 🌐 CORS & Headers
+
+### **CORS Configuration**
+```typescript
+// ALWAYS configure CORS properly
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Max-Age': '86400',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
+```
+
+### **Security Headers**
+```typescript
+// ALWAYS include security headers
+export const securityHeaders = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
+};
+```
+
+---
+
+## 📈 Response Standards
+
+### **Standard Response Format**
+```typescript
+// ALWAYS use consistent response format
+interface APIResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  timestamp: string;
+  requestId?: string;
+}
+
+function createSuccessResponse<T>(data: T, requestId?: string): APIResponse<T> {
+  return {
+    success: true,
+    data,
+    timestamp: new Date().toISOString(),
+    requestId
+  };
+}
+
+function createErrorResponse(error: string, requestId?: string): APIResponse {
+  return {
+    success: false,
+    error,
+    timestamp: new Date().toISOString(),
+    requestId
+  };
+}
+```
+
+### **Pagination Pattern**
+```typescript
+// ALWAYS implement pagination for large datasets
+interface PaginatedResponse<T> extends APIResponse<T[]> {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+function createPaginatedResponse<T>(
+  data: T[],
+  page: number,
+  limit: number,
+  total: number
+): PaginatedResponse<T> {
+  const totalPages = Math.ceil(total / limit);
+  
+  return {
+    success: true,
+    data,
+    timestamp: new Date().toISOString(),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrev: page > 1
+    }
+  };
+}
+```

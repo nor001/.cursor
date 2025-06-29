@@ -1,8 +1,3 @@
----
-description: 
-globs: 
-alwaysApply: false
----
 # Script & Automation Development Rules
 
 ## 🎯 MANDATORY ACTIVATION MARKER

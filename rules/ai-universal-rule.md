@@ -1,291 +1,447 @@
-# UNIVERSAL RULE - AI-FRIENDLY DEVELOPMENT FRAMEWORK
+# AI Universal Rule - Optimized
+
+# 🚨 MANDATORY RULE NAME DISPLAY
+# ALWAYS start every response with the active rule name:
+# [norm]
 
 ## 🎯 **Purpose**
-This universal rule serves as the main entry point for AI-friendly development, referencing specific rules in the `.cursor/rules` directory.
+3 essential rules + 2 cognitive modes - minimal overhead, maximum efficiency.
 
-## 📋 **Rule Architecture**
+## 🎯 Core Rules (3 Essential)
 
-### **Core Framework**
-```
-UNIVERSAL-RULE.md (Main Entry Point)
-├── ai-config.yaml (Structured Configuration)
-├── ai-documentation-rule.md (Documentation Standards)
-├── ai-naming-rule.md (Naming Conventions)
-├── ai-error-handling-rule.md (Error Patterns)
-├── ai-integration-rule.md (Integration Framework)
-├── script-rule.md (Automation Standards)
-└── abap-rule.md (Domain-Specific Patterns)
-```
+### 1. Execute by Default
+- **Default behavior**: Direct implementation without questions
+- **Ask only for**: Business logic changes, architecture decisions, destructive operations
+- **Mode distribution**: 25% execute, 75% think (complex project reality)
 
-### **Rule Hierarchy**
-1. **UNIVERSAL-RULE** - Main entry point and operational framework
-2. **AI Rules** - AI-friendly development standards
-3. **Domain Rules** - Specific domain patterns (ABAP, Scripts)
+### 2. Domain-Specific Naming
+- **Web**: React/Next.js patterns, component-based structure
+- **Mobile**: React Native, Flutter, native patterns
+- **Script**: Universal solutions, minimal validation overhead
+- **Enterprise**: Domain-specific patterns, corporate constraints
+- **Auto-detect**: Based on file extensions and request keywords
 
-## 🔄 **Rule Integration**
+### 3. Special Cases Preservation
+- **Never remove**: Special parsing logic, business rules, corporate constraints
+- **Always preserve**: Legacy compatibility, format variations, edge cases
+- **Document**: Special cases in code comments
 
-### **1. Configuration Reference**
-```yaml
-# Reference ai-config.yaml for structured data
-# See: .cursor/rules/ai-config.yaml
-# - Documentation templates
-# - Naming patterns
-# - Error handling configurations
-# - Integration layer settings
-# - Domain-specific patterns
-```
+## 🧠 Cognitive Modes (2 Modes)
 
-### **2. Documentation Standards**
+### EXECUTE (25% of time)
+- **Triggers**: Direct requests, error fixes, code improvements
+- **Behavior**: Immediate implementation, minimal analysis
+- **AI Style**: AI efficiency (faster processing, fewer tokens)
+
+### THINK (75% of time)  
+- **Triggers**: 'architecture', 'design', 'strategy', 'complex', 'special', 'corporate', 'legacy', 'integration', 'business logic', 'validation', 'project'
+- **Behavior**: Analysis first, then implementation
+- **AI Style**: AI friendly (clarity, maintainability)
+
+## 🔄 Auto-Detection
+
+### Mode Detection
 ```typescript
-// Reference ai-documentation-rule.md for documentation patterns
-// See: .cursor/rules/ai-documentation-rule.md
-/**
- * @ai-context [What this component does in business terms]
- * @ai-cognitive-load [low|medium|high] - [explanation]
- * @ai-focus-state [clear|fuzzy|scattered] - [explanation]
- * @ai-session-type [standard|complex|crisis] - [explanation]
- */
-```
-
-### **3. Naming Conventions**
-```typescript
-// Reference ai-naming-rule.md for naming patterns
-// See: .cursor/rules/ai-naming-rule.md
-// SAP Domain: handleSAP{Action}, validateSAP{DataType}
-// ABAP Domain: handleABAP{Action}, validateABAP{DataType}
-// UI Domain: handle{Component}{Action}, update{Component}{State}
-```
-
-### **4. Error Handling Patterns**
-```typescript
-// Reference ai-error-handling-rule.md for error patterns
-// See: .cursor/rules/ai-error-handling-rule.md
-// - SAPBusinessError, SAPValidationError, SAPSystemError
-// - Structured error logging with AI context
-// - Graceful degradation and recovery mechanisms
-```
-
-### **5. Integration Framework**
-```typescript
-// Reference ai-integration-rule.md for integration patterns
-// See: .cursor/rules/ai-integration-rule.md
-// - Operational, Strategic, Fallback layers
-// - Context-aware rule application
-// - Progressive integration based on complexity
-```
-
-## 🎯 **Operational Framework**
-
-### **Core Philosophy: Adaptive Intelligence**
-- **CONTEXT-DRIVEN EXECUTION**: Dynamic switching between operational efficiency, strategic depth, and emergency simplicity
-- **THREE-LAYER PRINCIPLE**: 80% Operational, 15% Strategic, 5% Fallback
-- **SEAMLESS TRANSITIONS**: Zero cognitive overhead switching between layers
-
-### **Layer Selection**
-```typescript
-// Automatic layer selection based on context
-interface LayerTrigger {
-  complexity: 'simple' | 'complex' | 'architectural';
-  timeAvailable: '<30min' | '30min-2h' | '>2h';
-  cognitiveState: 'high' | 'medium' | 'low';
-  riskLevel: 'routine' | 'production' | 'critical';
-  specialCases: 'none' | 'detected' | 'critical';
-}
-
-function selectLayer(context: LayerTrigger): ProfileLayer {
-  // Emergency override - always use fallback
-  if (context.riskLevel === 'critical' || context.cognitiveState === 'low') {
-    return FALLBACK_LAYER;
-  }
+function detectMode(request: string): 'EXECUTE' | 'THINK' {
+  const thinkTriggers = [
+    'architecture', 'design', 'strategy', 
+    'complex', 'special', 'corporate', 'legacy',
+    'integration', 'business logic', 'validation',
+    'project', 'planning', 'resource', 'system'
+  ];
   
-  // Special cases detected - use operational with extra care
-  if (context.specialCases === 'critical') {
-    return OPERATIONAL_LAYER_WITH_SPECIAL_CARE;
-  }
-  
-  // Strategic activation
-  if (context.complexity === 'architectural' && 
-      context.timeAvailable === '>2h' && 
-      context.cognitiveState === 'high') {
-    return STRATEGIC_LAYER;
-  }
-  
-  // Default operational efficiency
-  return OPERATIONAL_LAYER;
+  return thinkTriggers.some(trigger => request.includes(trigger))
+    ? 'THINK' 
+    : 'EXECUTE';
 }
 ```
 
-## 🔒 **Security-First Philosophy**
-
-### **Universal Input Validation**
+### Domain Detection
 ```typescript
-// ALWAYS validate inputs first
-function processUserData(userId, data) {
-  // Security first - always validate inputs
-  if (!isValidUserId(userId)) throw new SecurityError('Invalid user ID');
-  if (!isValidData(data)) throw new ValidationError('Invalid data');
+function detectDomain(request: string): 'WEB' | 'MOBILE' | 'SCRIPT' | 'ENTERPRISE' {
+  const webTriggers = ['react', 'next', 'vue', 'angular', 'component', 'frontend'];
+  const mobileTriggers = ['react-native', 'flutter', 'mobile', 'app', 'ios', 'android'];
+  const scriptTriggers = ['script', 'batch', 'shell', 'python', 'automation'];
+  const enterpriseTriggers = ['enterprise', 'corporate', 'legacy', 'integration', 'system'];
   
-  // Then process safely
-  return processData(userId, data);
+  if (mobileTriggers.some(trigger => request.includes(trigger))) {
+    return 'MOBILE';
+  }
+  
+  if (scriptTriggers.some(trigger => request.includes(trigger))) {
+    return 'SCRIPT';
+  }
+  
+  if (enterpriseTriggers.some(trigger => request.includes(trigger))) {
+    return 'ENTERPRISE';
+  }
+  
+  return 'WEB'; // Default
 }
 ```
 
-### **Universal Error Handling**
+### Enterprise Complexity Detection
 ```typescript
-// ALWAYS handle errors gracefully
-try {
-  const result = executeOperation();
-  return { success: true, data: result };
-} catch (error) {
-  // Log for debugging but don't expose internals
-  logError('Operation failed:', error);
-  return { 
-    success: false, 
-    error: 'Operation failed. Please try again.' 
+function detectEnterpriseComplexity(request: string): 'SIMPLE' | 'COMPLEX' | 'CRITICAL' {
+  const enterpriseTriggers = [
+    'microservice', 'orchestration', 'saga', 'cqrs',
+    'distributed', 'eventual_consistency', 'compensation',
+    'circuit_breaker', 'bulkhead', 'timeout',
+    'enterprise', 'corporate', 'legacy', 'integration'
+  ];
+  
+  const criticalTriggers = [
+    'production', 'live', 'critical', 'breaking_change',
+    'data_migration', 'system_integration', 'compliance'
+  ];
+  
+  if (criticalTriggers.some(trigger => request.includes(trigger))) {
+    return 'CRITICAL';
+  }
+  
+  if (enterpriseTriggers.some(trigger => request.includes(trigger))) {
+    return 'COMPLEX';
+  }
+  
+  return 'SIMPLE';
+}
+```
+
+### AI Approach Selection
+```typescript
+const MODE_TO_APPROACH = {
+  'EXECUTE': 'AI_EFFICIENCY',  // 25% - Fast execution for simple cases
+  'THINK': 'AI_FRIENDLY'       // 75% - Clear analysis for complex cases
+};
+
+function selectApproach(request: string): 'AI_EFFICIENCY' | 'AI_FRIENDLY' {
+  const mode = detectMode(request);
+  const complexity = detectEnterpriseComplexity(request);
+  
+  // Auto-upgrade to AI_FRIENDLY for enterprise complexity
+  if (complexity === 'COMPLEX' || complexity === 'CRITICAL') {
+    return 'AI_FRIENDLY';
+  }
+  
+  return MODE_TO_APPROACH[mode];
+}
+```
+
+## 🏗️ Architecture-First for Enterprise
+
+### Complexity Tiers
+```typescript
+const COMPLEXITY_TIERS = {
+  SIMPLE: {
+    approach: 'memory_sufficient',
+    aiStyle: 'AI_EFFICIENCY',
+    documentation: 'minimal'
+  },
+  COMPLEX: {
+    approach: 'ai_analysis_required',
+    aiStyle: 'AI_FRIENDLY',
+    documentation: 'architecture_decision_record'
+  },
+  CRITICAL: {
+    approach: 'full_context_ai',
+    aiStyle: 'AI_FRIENDLY',
+    documentation: 'comprehensive_adr'
+  }
+};
+```
+
+### Enterprise Context Injection
+```typescript
+interface EnterpriseContext {
+  systemImpact: 'isolated' | 'cross_system' | 'critical_path';
+  dataFlow: 'simple' | 'distributed' | 'eventual_consistency';
+  businessCriticality: 'low' | 'medium' | 'high';
+}
+
+function injectEnterpriseContext(request: string): EnterpriseContext {
+  const context: EnterpriseContext = {
+    systemImpact: 'isolated',
+    dataFlow: 'simple',
+    businessCriticality: 'low'
+  };
+  
+  // Auto-detect context based on request
+  if (request.includes('distributed') || request.includes('microservice')) {
+    context.dataFlow = 'distributed';
+  }
+  
+  if (request.includes('critical') || request.includes('production')) {
+    context.businessCriticality = 'high';
+  }
+  
+  if (request.includes('integration') || request.includes('cross_system')) {
+    context.systemImpact = 'cross_system';
+  }
+  
+  return context;
+}
+```
+
+### Enterprise Flow
+```typescript
+function enterpriseFlow(request: string) {
+  const complexity = detectEnterpriseComplexity(request);
+  
+  if (complexity === 'COMPLEX' || complexity === 'CRITICAL') {
+    return [
+      '1. architectural_impact_analysis',
+      '2. dependency_mapping',
+      '3. integration_point_identification', 
+      '4. implementation_with_monitoring'
+    ];
+  }
+  
+  return ['direct_implementation'];
+}
+```
+
+## 👤 User Profile (3 Essential Fields)
+
+### Core Traits
+- **Style**: Analytical, optimization-focused, senior developer
+- **Communication**: Direct, structured, efficiency-oriented  
+- **Adaptation**: Auto-detect and adjust to user's interaction patterns
+
+### Performance Caching
+```typescript
+const sessionCache = {
+  userProfile: 'cache_per_session',        // No re-detection
+  domainPattern: 'cache_per_project',      // Maintain project context
+  commonTriggers: 'precompute_frequent'    // Pre-compute common patterns
+};
+```
+
+## 🎯 Success Metrics
+
+### Performance
+- **Token reduction**: 30% fewer tokens (adjusted for complex reality)
+- **Processing time**: 40% faster (balanced for analysis)
+- **Decision points**: 50% fewer triggers
+
+### Quality
+- **Functionality preserved**: All core features maintained
+- **Maintainability**: Clear, readable code
+- **Adoption**: Simple enough for daily use
+- **Special cases**: Excellent preservation with 75% THINK mode
+- **Complex analysis**: Adequate time for project complexity
+- **Enterprise patterns**: Auto-detection and appropriate handling
+
+## 🎯 **3 ESSENTIAL RULES**
+
+### **1. ⚡ EXECUTE BY DEFAULT**
+```typescript
+// ALWAYS proceed directly with requested tasks
+// ONLY ask for: business logic changes, architecture decisions, destructive operations
+
+function handleRequest(request: string) {
+  const mode = detectMode(request);
+  
+  if (mode === 'THINK') {
+    return analyzeThenExecute(request);
+  }
+  
+  return executeDirectly(request); // Default - no questions
+}
+```
+
+### **2. 🏷️ DOMAIN NAMING**
+```typescript
+// Domain-specific naming - I don't master this automatically
+
+// Web Domain  
+const useProjectData = () => { ... }
+const handleFileUpload = (file: File) => { ... }
+const ProjectService = class { ... }
+
+// Script Domain
+const script_process_csv = (file: string) => { ... }
+const var_project_data = { ... }
+
+// I don't know to use domain prefixes automatically
+// ❌ uploadFile, validateData, processData (generic)
+// ✅ useProjectData, handleFileUpload, script_process_csv (domain-specific)
+```
+
+### **3. 🛡️ PRESERVE SPECIAL CASES**
+```typescript
+// ALWAYS preserve special logic - I don't master this automatically
+
+// Corporate Constraints
+function handleCorporateRequest(url: string) {
+  // Corporate SSL requirements
+  // Proxy configuration needed
+  // Legacy system compatibility
+}
+
+// NEVER remove special case handling without explicit confirmation
+```
+
+## 🏷️ **DOMAIN DETECTION (Minimal)**
+
+### **Automatic Domain Detection**
+```typescript
+function detectDomain(request: string): 'WEB' | 'MOBILE' | 'SCRIPT' | 'ENTERPRISE' {
+  const webTriggers = ['react', 'next', 'vue', 'angular', 'component', 'frontend'];
+  const mobileTriggers = ['react-native', 'flutter', 'mobile', 'app', 'ios', 'android'];
+  const scriptTriggers = ['script', 'batch', 'shell', 'python', 'automation'];
+  const enterpriseTriggers = ['enterprise', 'corporate', 'legacy', 'integration', 'system'];
+  
+  if (mobileTriggers.some(trigger => request.includes(trigger))) {
+    return 'MOBILE';
+  }
+  
+  if (scriptTriggers.some(trigger => request.includes(trigger))) {
+    return 'SCRIPT';
+  }
+  
+  if (enterpriseTriggers.some(trigger => request.includes(trigger))) {
+    return 'ENTERPRISE';
+  }
+  
+  return 'WEB'; // Default
+}
+```
+
+### **Domain Patterns (Minimal)**
+```typescript
+const DOMAIN_PATTERNS = {
+  WEB: {
+    naming: { components: 'use', handlers: 'handle' },
+    patterns: { component_structure: "function_component_with_hooks" }
+  },
+  
+  SCRIPT: {
+    naming: { files: 'script_', functions: 'exec' },
+    patterns: { create_file: true, prefer_cross_platform: true }
+  }
+};
+```
+
+## 📊 **EFFICIENCY METRICS (Minimal)**
+
+### **Performance Tracking**
+```typescript
+interface EfficiencyMetrics {
+  responseTime: number;
+  tokenUsage: number;
+  complexity: 'low' | 'medium' | 'high';
+}
+
+function provideMetrics(request: string): EfficiencyMetrics {
+  return {
+    responseTime: calculateResponseTime(),
+    tokenUsage: calculateTokenUsage(),
+    complexity: assessComplexity(request)
   };
 }
 ```
 
-## 🚨 **CRITICAL: Special Cases & Edge Cases**
+## 📚 **Domain-Specific References**
 
-### **ALWAYS PRESERVE SPECIAL LOGIC**
-- **NEVER remove special parsing logic** (like CSV header on line 3)
-- **NEVER simplify complex business rules** without explicit confirmation
-- **ALWAYS ask before removing** any "special case" handling
-- **Document special cases** in code comments for future reference
+### **For Web Development**
+- See `.cursor/web-rule.md` for React, Next.js, and frontend patterns
+- Performance auditing and API optimization
+- Client-side caching and state management
+- Browser-specific constraints
 
-### **Special Case Detection Protocol**
-```typescript
-// BEFORE making changes, identify:
-// 1. Special formats (CSV with headers on line 3)
-// 2. Business-specific validations
-// 3. Corporate environment constraints (SSL, proxies)
-// 4. Legacy compatibility requirements
-// 5. User-specific workflows
-// 6. Utility patterns that could be centralized
+### **For Mobile Development**
+- See `.cursor/mobile-rule.md` for React Native, Flutter patterns
+- Platform-specific optimizations
+- Cross-platform compatibility
+- Performance considerations
 
-// ALWAYS preserve these patterns:
-if (specialFormat) {
-  // Keep existing special logic
-  return handleSpecialCase(data);
-}
+### **For Script Development**
+- Apply ULTRA-DIRECT PROTOCOL
+- Prefer universal solutions over platform-specific
+- Minimize validation overhead
+- Focus on immediate execution
+
+### **For Enterprise Development**
+- See `.cursor/enterprise-rule.md` for enterprise patterns
+- Integration strategies
+- Data consistency patterns
+- Corporate constraints
+
+## 📚 **For Detailed Examples**
+See `session-patterns.md` for special case implementation details. 
+
+## 🔧 Implementation
+
+### Automatic Application
+- **No manual activation needed**
+- **Auto-detect mode and domain**
+- **Auto-upgrade to enterprise mode when needed**
+- **Apply appropriate AI style**
+- **Cache for performance**
+
+### Manual Override Examples
+```bash
+# Real-world usage examples:
+"complexity: critical"     # Force CRITICAL enterprise mode
+"domain: enterprise"       # Force ENTERPRISE patterns
+"mode: think"             # Force THINK mode
+"mode: execute"           # Force EXECUTE mode
+"domain: web"             # Force WEB patterns
+"domain: mobile"          # Force MOBILE patterns
+"domain: script"          # Force SCRIPT patterns
 ```
 
-## ⚡ **DIRECT ACTION PROTOCOL**
+## 📚 Domain Patterns
 
-### **Core Principle: Execute, Don't Ask**
-- **ALWAYS proceed directly** with requested tasks
-- **NEVER ask "Should I make the change?"** for standard operations
-- **NO unnecessary questions** - calls cost money
-- **Direct implementation** for all requested changes
+### Web Development
+- React/Next.js best practices
+- Component-based architecture
+- Performance optimization
+- Modern UI/UX patterns
 
-### **When to Execute Directly**
-- ✅ **Error fixes** - implement immediately
-- ✅ **Code improvements** - apply directly
-- ✅ **Refactoring requests** - proceed without asking
-- ✅ **File operations** - create/delete as requested
-- ✅ **Configuration changes** - apply immediately
+### Mobile Development
+- React Native/Flutter patterns
+- Native platform considerations
+- Performance optimization
+- Cross-platform compatibility
 
-### **When to Ask (Rare Cases Only)**
-- ❌ **Business logic changes** that could break existing functionality
-- ❌ **Architecture decisions** affecting multiple systems
-- ❌ **Security-sensitive operations** requiring user confirmation
-- ❌ **Data deletion** or destructive operations
+### Script Development  
+- Universal compatibility
+- Minimal dependencies
+- Direct execution
+- Error handling
 
-## 🛠️ **Implementation Guidelines**
+### Enterprise Development
+- Microservices patterns
+- Event-driven architectures
+- Data consistency patterns
+- Integration patterns
 
-### **When to Use Full AI Framework**
-- ✅ **Complex business logic** requiring multiple rule sets
-- ✅ **New feature development** with AI assistance
-- ✅ **System architecture** decisions
-- ✅ **Critical operations** requiring comprehensive handling
+## 📚 References
 
-### **When to Use Partial AI Framework**
-- ✅ **Simple operations** - Use only relevant rules
-- ✅ **Quick fixes** - Focus on specific rule sets
-- ✅ **Maintenance tasks** - Use operational layer rules
-- ✅ **Emergency situations** - Use fallback layer rules
+### For Detailed Examples
+See `session-patterns.md` for special case implementation details.
 
-### **Rule Application Priority**
-1. **UNIVERSAL-RULE** - Always apply operational framework
-2. **AI Rules** - Apply based on complexity and context
-3. **Domain Rules** - Apply for domain-specific operations
-4. **Custom Rules** - Apply for project-specific needs
+### For Web Development
+- See `.cursor/web-rule.md` for React, Next.js, and frontend patterns
+- Performance auditing and API optimization
+- Client-side caching and state management
+- Browser-specific constraints
 
-## 📊 **Success Metrics**
+### For Mobile Development
+- See `.cursor/mobile-rule.md` for React Native, Flutter patterns
+- Platform-specific optimizations
+- Cross-platform compatibility
+- Performance considerations
 
-### **AI Understanding Metrics**
-- **Context Recognition**: AI correctly identifies component purpose
-- **Special Case Handling**: AI preserves critical business logic
-- **Performance Awareness**: AI considers performance implications
-- **Security Compliance**: AI maintains security standards
+### For Script Development
+- Apply ULTRA-DIRECT PROTOCOL
+- Prefer universal solutions over platform-specific
+- Minimize validation overhead
+- Focus on immediate execution
 
-### **Human Developer Metrics**
-- **Readability**: Code remains readable for human developers
-- **Maintainability**: Easy to modify and extend
-- **Onboarding**: New developers understand quickly
-- **Debugging**: Issues are easy to identify and resolve
-
-## 🚀 **Best Practices**
-
-### **1. Progressive Rule Application**
-```typescript
-// Start with basic universal rule
-function basicOperation() {
-  // UNIVERSAL-RULE: Direct action protocol
-  return executeOperation();
-}
-
-// Add AI rules as complexity increases
-function complexOperation() {
-  // UNIVERSAL-RULE: Operational layer
-  // AI-DOC-RULE: Context documentation
-  // AI-NAMING-RULE: Contextual naming
-  // AI-ERROR-RULE: Structured error handling
-  return executeComplexOperation();
-}
-```
-
-### **2. Consistent Rule Application**
-```typescript
-// Apply rules consistently across the project
-// UNIVERSAL-RULE: Always apply operational framework
-// AI Rules: Apply based on complexity
-// Domain Rules: Apply for domain-specific operations
-
-// Example: SAP component development
-export const SAPComponent = () => {
-  // AI-DOC-RULE: Component documentation
-  // AI-NAMING-RULE: SAP domain naming
-  // AI-ERROR-RULE: SAP error handling
-  // UNIVERSAL-RULE: Operational efficiency
-};
-```
-
-### **3. Context-Aware Rule Application**
-```typescript
-// Apply rules based on context
-function applyRulesByContext(context: DevelopmentContext) {
-  if (context.isEmergency) {
-    return applyFallbackRules(); // UNIVERSAL-RULE fallback
-  }
-  
-  if (context.isComplex) {
-    return applyAllAIRules(); // Full AI rule integration
-  }
-  
-  return applyBasicRules(); // Basic UNIVERSAL-RULE + essential AI rules
-}
-```
-
-## 🎯 **Conclusion**
-
-This universal rule **serves as the main entry point** for AI-friendly development, referencing specific rules in the `.cursor/rules` directory. The result is a comprehensive, modular framework that maintains operational efficiency while providing comprehensive AI assistance.
-
-**Key Benefits:**
-- ✅ **Modular rule system** for easy maintenance and updates
-- ✅ **Clear separation of concerns** between different rule types
-- ✅ **Progressive application** from simple to complex operations
-- ✅ **Consistent patterns** across all development activities
-- ✅ **Operational efficiency** with AI augmentation
-- ✅ **Domain-specific optimization** for SAP and ABAP development 
+### For Enterprise Development
+- See `.cursor/enterprise-rule.md` for enterprise patterns
+- Integration strategies
+- Data consistency patterns
+- Corporate constraints
